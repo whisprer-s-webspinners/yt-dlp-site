@@ -49,10 +49,12 @@ def index() -> str:
 
 @app.get("/api/bootstrap")
 def bootstrap() -> dict[str, str | bool]:
+    settings = load_settings()
     return {
         "token": TOKEN,
         "app": "wofl-dlp",
-        "localOnly": True,
+        "localOnly": not settings.public_mode,
+        "publicMode": settings.public_mode,
         "configFile": str(CONFIG_FILE),
     }
 
@@ -124,10 +126,15 @@ def open_browser() -> None:
     webbrowser.open("http://127.0.0.1:8765/")
 
 
-def main() -> None:
-    Timer(0.8, open_browser).start()
+def main(no_browser: bool = False) -> None:
+    if not no_browser:
+        Timer(0.8, open_browser).start()
+    else:
+        print("🚀 wofl-dlp starting in headless/public mode (Cloudflare Access protected)")
     uvicorn.run(app, host="127.0.0.1", port=8765, log_level="info")
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    no_browser_flag = "--no-browser" in sys.argv
+    main(no_browser=no_browser_flag)

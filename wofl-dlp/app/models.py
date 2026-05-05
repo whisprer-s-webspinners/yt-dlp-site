@@ -10,6 +10,7 @@ class AppSettings(BaseModel):
     js_runtime: str = "auto"  # auto, none, deno, node, bun, qjs, qjs-ng
     max_clip_seconds: int = Field(default=300, ge=5, le=3600)
     cleanup_ttl_hours: int = Field(default=6, ge=1, le=168)
+    public_mode: bool = False
 
     @field_validator("cookies_file")
     @classmethod

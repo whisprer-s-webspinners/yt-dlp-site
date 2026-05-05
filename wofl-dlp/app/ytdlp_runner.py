@@ -52,6 +52,7 @@ def _common_args() -> list[str]:
         cookie_path = Path(settings.cookies_file).expanduser()
         if cookie_path.exists() and cookie_path.is_file():
             args.extend(["--cookies", str(cookie_path)])
+            print(f"Using cookies: {cookie_path}")  # for debug
     if settings.allow_remote_ejs_github:
         args.extend(["--remote-components", "ejs:github"])
     if settings.js_runtime != "none":
@@ -323,24 +324,45 @@ class Job:
 class JobManager:
     def __init__(self) -> None:
         self._jobs: dict[str, Job] = {}
+        self._queue: deque[DownloadRequest] = deque()
         self._lock = threading.RLock()
+        self._current_runner = None
         JOBS_DIR.mkdir(parents=True, exist_ok=True)
         self.cleanup_old_job_dirs(max_age_hours=load_settings().cleanup_ttl_hours)
 
     def start(self, req: DownloadRequest) -> JobStatus:
         with self._lock:
-            running = [j for j in self._jobs.values() if j.state in {"queued", "running"}]
-            if running:
-                raise RuntimeError("A download is already running. This local agent deliberately allows one job at a time.")
             job_id = uuid.uuid4().hex
             job_dir = safe_job_dir(job_id)
             job_dir.mkdir(parents=True, exist_ok=False)
             command = build_download_command(req, job_dir)
-            job = Job(job_id=job_id, request=req, job_dir=job_dir, command=command)
+            job = Job(job_id=job_id, request=req, job_dir=job_dir, command=command, state="queued")
             self._jobs[job_id] = job
-        thread = threading.Thread(target=self._run_job, args=(job,), daemon=True)
-        thread.start()
+
+            if self._current_runner is None:   # start immediately
+                self._current_runner = threading.Thread(target=self._process_queue, daemon=True)
+                self._current_runner.start()
+            else:
+                self._queue.append(req)   # wait in queue
+
         return job.status()
+
+    def _process_queue(self):
+        while True:
+            with self._lock:
+                if not self._queue and not any(j.state in {"queued", "running"} for j in self._jobs.values()):
+                    self._current_runner = None
+                    break
+                # Find next queued job
+                for j in self._jobs.values():
+                    if j.state == "queued":
+                        job = j
+                        break
+                else:
+                    time.sleep(1)
+                    continue
+
+            self._run_job(job)   # runs the actual download
 
     def get(self, job_id: str) -> Job:
         with self._lock:

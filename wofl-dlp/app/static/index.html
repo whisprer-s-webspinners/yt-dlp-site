@@ -1,129 +1,145 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>wofl-dlp</title>
-  <link rel="stylesheet" href="/static/styles.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>yt.cafe - whispr-dlp</title>
+  
+  <meta property="og:title" content="yt.cafe - Download YouTube Videos Free">
+  <meta property="og:description" content="A local web interface for yt-dlp. Simple, fast, and eye-catching.">
+  <meta property="og:image" content="https://yt.cafe/static/preview-image.png">
+  <meta property="og:url" content="https://yt.cafe">
+  <meta property="og:type" content="website">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="yt.cafe - Download YouTube Videos Free">
+  <meta name="twitter:description" content="A clean, high-performance UI for yt-dlp. No bloat, just speed.">
+  <meta name="twitter:image" content="https://yt.cafe/static/preview-image.png">
+
+  <link rel="stylesheet" href="/static/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
-  <main class="shell">
-    <header class="hero">
-      <div>
-        <p class="eyebrow">local browser UI for yt-dlp</p>
-        <h1>wofl-dlp</h1>
-        <p class="lede">Downloads run on this machine through the localhost agent. Use it only for media you own, created, or are permitted to download.</p>
-      </div>
-      <div class="status-card" id="system-card">
-        <span class="pill">checking system…</span>
-      </div>
-    </header>
+<div class="shell">
+  <header class="hero">
+      <div class="eyebrow">LOCAL BROWSER UI FOR YT-DLP</div>
+      <h1>YT<span>.CAFE</span></h1>
+      <p class="lede">WHISPR-DLP: A LOCAL BROWSER UI FOR YT-DLP</p>
+      <div id="system-card" class="status-badge">checking system…</div>
+  </header>
 
-    <section class="card">
-      <label for="url">URL to inspect</label>
+  <main>
+    <!-- URL INSPECTOR -->
+    <div class="card highlight">
+      <h2>URL TO INSPECT</h2>
       <div class="url-row">
-        <input id="url" type="url" spellcheck="false" autocomplete="off" placeholder="https://youtu.be/example?t=1m23s" />
-        <button id="probe-btn">Detect formats</button>
+        <input id="url" type="text" placeholder="Paste link here..." value="">
+        <button id="probe-btn">DETECT FORMATS</button>
       </div>
       <p class="hint">A timestamp like <code>?t=1m23s</code> is detected and can auto-create a five-minute clip.</p>
-    </section>
+    </div>
 
-    <section class="card hidden" id="probe-card">
+    <!-- PROBE CARD (Hidden until detection) -->
+    <div id="probe-card" class="card hidden">
+      <h2>DETECTED MEDIA</h2>
       <div class="split">
         <div>
-          <p class="eyebrow">detected media</p>
-          <h2 id="media-title">—</h2>
-          <p id="media-meta" class="muted">—</p>
+          <strong id="media-title"></strong><br>
+          <span id="media-meta" class="muted"></span>
         </div>
-        <div id="clip-box" class="clip-box hidden">
-          <label class="checkbox"><input id="use-clip" type="checkbox" /> Clip from detected timestamp</label>
-          <label for="clip-length">Clip length, seconds</label>
-          <input id="clip-length" type="number" min="5" max="3600" value="300" />
-          <p class="hint" id="clip-hint"></p>
+        <div class="clip-box" id="clip-box">
+          <label class="checkbox">
+            <input type="checkbox" id="use-clip"> Clip from detected timestamp
+          </label><br>
+          Clip length (sec):
+          <input id="clip-length" type="number" value="300" style="width:80px">
+          <p id="clip-hint" class="hint"></p>
         </div>
       </div>
+    </div>
 
+    <!-- DOWNLOAD CONFIG -->
+    <div class="card">
       <div class="grid two">
         <div>
-          <label for="mode">Mode</label>
+          <label>Mode</label>
           <select id="mode">
-            <option value="audio" selected>Audio extract</option>
+            <option value="audio">Audio extract</option>
             <option value="video">Video download/merge</option>
           </select>
         </div>
         <div>
-          <label for="container">Output file type</label>
+          <label>Output file type</label>
           <select id="container"></select>
         </div>
       </div>
 
-      <label for="format">Source format</label>
+      <label>Source format</label>
       <select id="format"></select>
-      <p class="hint" id="format-hint">Smart best is usually right. Exact source streams are useful when you know precisely what you want.</p>
-
-      <details>
-        <summary>Advanced naming</summary>
-        <label for="title-prefix">Optional filename prefix</label>
-        <input id="title-prefix" type="text" maxlength="80" placeholder="e.g. sample-grab" />
-      </details>
 
       <div class="actions">
-        <button id="download-btn">Start download</button>
+        <label>Advanced naming</label>
+        <input id="title-prefix" type="text" placeholder="Optional filename prefix">
       </div>
-    </section>
 
-    <section class="card hidden" id="job-card">
+      <button id="download-btn" class="button">START DOWNLOAD</button>
+    </div>
+
+    <!-- JOB PROGRESS -->
+    <div id="job-card" class="card hidden">
+      <h2>JOB</h2>
       <div class="split">
         <div>
-          <p class="eyebrow">job</p>
-          <h2 id="job-state">—</h2>
-          <p id="job-message" class="muted">—</p>
+          <strong id="job-state"></strong><br>
+          <span id="job-message"></span>
         </div>
-        <a id="save-link" class="button hidden" href="#">Save file</a>
+        <a id="save-link" class="button hidden" style="width: auto;">SAVE FILE</a>
       </div>
-      <progress id="progress" max="100" value="0"></progress>
-      <pre id="command-preview" class="command"></pre>
+      <progress id="progress" value="0" max="100"></progress>
+      <details>
+        <summary>Command preview</summary>
+        <pre id="command-preview" class="command"></pre>
+      </details>
       <details open>
         <summary>Log</summary>
         <pre id="log" class="log"></pre>
       </details>
-    </section>
+    </div>
 
-    <section class="card">
-      <details>
-        <summary>Settings</summary>
-        <div class="grid two">
-          <div>
-            <label for="cookies-file">Cookies file path, optional</label>
-            <input id="cookies-file" type="text" spellcheck="false" placeholder="C:\\Users\\owner\\cookies.txt or /home/me/cookies.txt" />
-            <p class="hint">Stored locally only. Leave blank unless you need authenticated personal access.</p>
-          </div>
-          <div>
-            <label for="js-runtime">JavaScript runtime for yt-dlp challenges</label>
-            <select id="js-runtime">
-              <option value="auto">Auto-detect</option>
-              <option value="none">None</option>
-              <option value="deno">Deno</option>
-              <option value="node">Node</option>
-              <option value="bun">Bun</option>
-              <option value="qjs">QuickJS</option>
-              <option value="qjs-ng">QuickJS-NG</option>
-            </select>
-          </div>
+    <!-- SETTINGS -->
+    <div class="card">
+      <h2>SETTINGS</h2>
+      <label>Cookies file path</label>
+      <input id="cookies-file" type="text" placeholder="/home/wofl/cookies.txt">
+      
+      <label>JavaScript runtime</label>
+      <select id="js-runtime">
+        <option value="auto">Auto-detect</option>
+        <option value="none">None</option>
+        <option value="deno">Deno</option>
+        <option value="node">Node</option>
+        <option value="bun">Bun</option>
+        <option value="qjs">QuickJS</option>
+        <option value="qjs-ng">QuickJS-NG</option>
+      </select>
+
+      <div class="checkbox-group">
+        <div class="checkbox">
+          <input type="checkbox" id="allow-remote-ejs">
+          <label for="allow-remote-ejs">Allow remote EJS components</label>
         </div>
-        <label class="checkbox"><input id="allow-remote-ejs" type="checkbox" /> Allow yt-dlp to fetch EJS remote components from GitHub when required</label>
-        <p class="hint warn">Leave this off unless you need it. Remote component fetching intentionally allows yt-dlp to download executable helper scripts.</p>
-        <button id="save-settings-btn">Save settings</button>
-      </details>
-    </section>
+        <div class="checkbox">
+          <input type="checkbox" id="public-mode">
+          <label for="public-mode">Public mode (Cloudflare Access)</label>
+        </div>
+      </div>
 
-    <section class="card subtle">
-      <h2>Architecture note</h2>
-      <p>This is a local agent, not a cloud downloader. The UI can be opened from your browser, but yt-dlp and ffmpeg run on <strong>127.0.0.1</strong>, so media requests originate from your own machine.</p>
-    </section>
+      <button id="save-settings-btn" class="button">SAVE SETTINGS</button>
+    </div>
   </main>
+</div>
 
-  <div id="toast" class="toast hidden"></div>
-  <script src="/static/app.js" type="module"></script>
+<div id="toast" class="toast hidden"></div>
+<script src="/static/app.js"></script>
 </body>
 </html>
