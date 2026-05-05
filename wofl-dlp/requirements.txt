@@ -1,0 +1,8 @@
+fastapi>=0.115.14,<1.0
+uvicorn[standard]>=0.35.0,<1.0
+yt-dlp[default]>=2025.11.12
+imageio-ffmpeg>=0.6.0,<1.0
+platformdirs>=4.3.8,<5.0
+psutil>=7.0.0,<8.0
+pydantic>=2.11.7,<3.0
+python-multipart>=0.0.20,<1.0

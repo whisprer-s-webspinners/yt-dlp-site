@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>wofl-dlp</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">local browser UI for yt-dlp</p>
+        <h1>wofl-dlp</h1>
+        <p class="lede">Downloads run on this machine through the localhost agent. Use it only for media you own, created, or are permitted to download.</p>
+      </div>
+      <div class="status-card" id="system-card">
+        <span class="pill">checking system…</span>
+      </div>
+    </header>
+
+    <section class="card">
+      <label for="url">URL to inspect</label>
+      <div class="url-row">
+        <input id="url" type="url" spellcheck="false" autocomplete="off" placeholder="https://youtu.be/example?t=1m23s" />
+        <button id="probe-btn">Detect formats</button>
+      </div>
+      <p class="hint">A timestamp like <code>?t=1m23s</code> is detected and can auto-create a five-minute clip.</p>
+    </section>
+
+    <section class="card hidden" id="probe-card">
+      <div class="split">
+        <div>
+          <p class="eyebrow">detected media</p>
+          <h2 id="media-title">—</h2>
+          <p id="media-meta" class="muted">—</p>
+        </div>
+        <div id="clip-box" class="clip-box hidden">
+          <label class="checkbox"><input id="use-clip" type="checkbox" /> Clip from detected timestamp</label>
+          <label for="clip-length">Clip length, seconds</label>
+          <input id="clip-length" type="number" min="5" max="3600" value="300" />
+          <p class="hint" id="clip-hint"></p>
+        </div>
+      </div>
+
+      <div class="grid two">
+        <div>
+          <label for="mode">Mode</label>
+          <select id="mode">
+            <option value="audio" selected>Audio extract</option>
+            <option value="video">Video download/merge</option>
+          </select>
+        </div>
+        <div>
+          <label for="container">Output file type</label>
+          <select id="container"></select>
+        </div>
+      </div>
+
+      <label for="format">Source format</label>
+      <select id="format"></select>
+      <p class="hint" id="format-hint">Smart best is usually right. Exact source streams are useful when you know precisely what you want.</p>
+
+      <details>
+        <summary>Advanced naming</summary>
+        <label for="title-prefix">Optional filename prefix</label>
+        <input id="title-prefix" type="text" maxlength="80" placeholder="e.g. sample-grab" />
+      </details>
+
+      <div class="actions">
+        <button id="download-btn">Start download</button>
+      </div>
+    </section>
+
+    <section class="card hidden" id="job-card">
+      <div class="split">
+        <div>
+          <p class="eyebrow">job</p>
+          <h2 id="job-state">—</h2>
+          <p id="job-message" class="muted">—</p>
+        </div>
+        <a id="save-link" class="button hidden" href="#">Save file</a>
+      </div>
+      <progress id="progress" max="100" value="0"></progress>
+      <pre id="command-preview" class="command"></pre>
+      <details open>
+        <summary>Log</summary>
+        <pre id="log" class="log"></pre>
+      </details>
+    </section>
+
+    <section class="card">
+      <details>
+        <summary>Settings</summary>
+        <div class="grid two">
+          <div>
+            <label for="cookies-file">Cookies file path, optional</label>
+            <input id="cookies-file" type="text" spellcheck="false" placeholder="C:\\Users\\owner\\cookies.txt or /home/me/cookies.txt" />
+            <p class="hint">Stored locally only. Leave blank unless you need authenticated personal access.</p>
+          </div>
+          <div>
+            <label for="js-runtime">JavaScript runtime for yt-dlp challenges</label>
+            <select id="js-runtime">
+              <option value="auto">Auto-detect</option>
+              <option value="none">None</option>
+              <option value="deno">Deno</option>
+              <option value="node">Node</option>
+              <option value="bun">Bun</option>
+              <option value="qjs">QuickJS</option>
+              <option value="qjs-ng">QuickJS-NG</option>
+            </select>
+          </div>
+        </div>
+        <label class="checkbox"><input id="allow-remote-ejs" type="checkbox" /> Allow yt-dlp to fetch EJS remote components from GitHub when required</label>
+        <p class="hint warn">Leave this off unless you need it. Remote component fetching intentionally allows yt-dlp to download executable helper scripts.</p>
+        <button id="save-settings-btn">Save settings</button>
+      </details>
+    </section>
+
+    <section class="card subtle">
+      <h2>Architecture note</h2>
+      <p>This is a local agent, not a cloud downloader. The UI can be opened from your browser, but yt-dlp and ffmpeg run on <strong>127.0.0.1</strong>, so media requests originate from your own machine.</p>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="/static/app.js" type="module"></script>
+</body>
+</html>
