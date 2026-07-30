@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New features that have been added
 
 ### Changed
+- Changes in existing functionality
 
 ### Deprecated
 - Soon-to-be removed features
